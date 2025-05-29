@@ -60,8 +60,8 @@ export function afficherModale(projetsGlobal, rafraichirProjets) {
 
         if (reponse.ok) {
           console.log(`Projet ${projet.id} supprimé`);
-          const projetsMaj = await rafraichirProjets(); // 🔁 données fraîches
-          afficherModale(projetsMaj, rafraichirProjets, projetsGlobal); // 🔁 recharge visuelle modale
+          const projetsMaj = await rafraichirProjets();
+          afficherModale(projetsMaj, rafraichirProjets, projetsGlobal);
         } else {
           alert("Erreur lors de la suppression.");
         }
@@ -118,12 +118,10 @@ export function afficherAjouterPhoto() {
       const reader = new FileReader();
 
       reader.onload = (e) => {
-        // Créer l'image de preview
         const previewImg = document.createElement("img");
         previewImg.src = e.target.result;
         previewImg.classList.add("preview-img");
 
-        // Nettoyer l'uploadBox
         uploadBox.innerHTML = "";
         uploadBox.appendChild(previewImg);
       };
@@ -153,7 +151,6 @@ export async function afficherAjouterPhotoForm(fileInput, rafraichirProjets) {
 
   const modaleForm = document.createElement("form");
 
-  // Label et champ Titre
   const labelTitle = document.createElement("label");
   labelTitle.setAttribute("for", "title");
   labelTitle.textContent = "Titre";
@@ -163,7 +160,6 @@ export async function afficherAjouterPhotoForm(fileInput, rafraichirProjets) {
   inputTitle.setAttribute("name", "title");
   inputTitle.setAttribute("id", "title");
 
-  // Label et select pour Catégories
   const labelCategorie = document.createElement("label");
   labelCategorie.setAttribute("for", "categorie");
   labelCategorie.textContent = "Catégorie";
@@ -173,13 +169,11 @@ export async function afficherAjouterPhotoForm(fileInput, rafraichirProjets) {
   selectCategorie.setAttribute("name", "categorie");
   selectCategorie.setAttribute("id", "categorie");
 
-  // Option par défaut
   const defaultOption = document.createElement("option");
   defaultOption.value = "";
 
   selectCategorie.appendChild(defaultOption);
 
-  // 🔽 Appel API pour les catégories
   try {
     const reponse = await fetch("http://localhost:5678/api/categories");
     const categories = await reponse.json();
@@ -204,14 +198,12 @@ export async function afficherAjouterPhotoForm(fileInput, rafraichirProjets) {
   ajoutBtn.classList.add("modale-btn");
   ajoutBtn.textContent = "Valider";
 
-  // Ajout des éléments au formulaire
   modaleForm.appendChild(labelTitle);
   modaleForm.appendChild(inputTitle);
   modaleForm.appendChild(labelCategorie);
   modaleForm.appendChild(selectCategorie);
   modaleForm.appendChild(ajoutBtn);
 
-  // Ajout à la modale
   modaleContent.appendChild(modaleForm);
 
   ajoutBtn.addEventListener("click", async (e) => {
@@ -219,8 +211,7 @@ export async function afficherAjouterPhotoForm(fileInput, rafraichirProjets) {
 
     const titre = inputTitle.value.trim();
     const categorieId = selectCategorie.value;
-    const image = fileInput?.files[0]; // ✅ sécurité en plus
-
+    const image = fileInput?.files[0];
     if (!titre || !categorieId || !image) {
       alert("Tous les champs doivent être remplis.");
       return;

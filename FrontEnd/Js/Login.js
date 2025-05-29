@@ -20,7 +20,7 @@ formultaire.addEventListener("submit", async (e) => {
   if (reponse.ok) {
     const data = await reponse.json();
     saveToken(data.token);
-    window.location.href = "../index.html"; // Redirection vers la page d'accueil
+    window.location.href = "../index.html";
   } else {
     document.getElementById("email").style.borderColor = "red";
     document.getElementById("mdp").style.borderColor = "red";
