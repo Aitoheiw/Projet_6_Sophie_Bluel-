@@ -59,7 +59,6 @@ export function afficherModale(projetsGlobal, rafraichirProjets) {
         );
 
         if (reponse.ok) {
-          console.log(`Projet ${projet.id} supprimé`);
           const projetsMaj = await rafraichirProjets();
           afficherModale(projetsMaj, rafraichirProjets, projetsGlobal);
         } else {
@@ -115,8 +114,19 @@ export function afficherAjouterPhoto() {
     const fichier = fileInput.files[0];
 
     if (fichier) {
-      const reader = new FileReader();
+      const validTypes = ["image/jpeg", "image/png"];
+      const typeOK = validTypes.includes(fichier.type);
 
+      if (!typeOK) {
+        const errorMsg = document.createElement("p");
+        errorMsg.classList.add("error-message-ajout-projet");
+        errorMsg.textContent = "Seuls les fichiers JPG ou PNG sont autorisés.";
+        uploadBox.appendChild(errorMsg);
+        fileInput.value = "";
+        return;
+      }
+
+      const reader = new FileReader();
       reader.onload = (e) => {
         const previewImg = document.createElement("img");
         previewImg.src = e.target.result;
@@ -212,10 +222,38 @@ export async function afficherAjouterPhotoForm(fileInput, rafraichirProjets) {
     const titre = inputTitle.value.trim();
     const categorieId = selectCategorie.value;
     const image = fileInput?.files[0];
-    if (!titre || !categorieId || !image) {
-      alert("Tous les champs doivent être remplis.");
-      return;
+
+    modaleForm
+      .querySelectorAll(".error-message-ajout-projet")
+      .forEach((el) => el.remove());
+
+    let hasError = false;
+
+    if (!image) {
+      const err = document.createElement("p");
+      err.classList.add("error-message-ajout-projet");
+      err.textContent = "Veuillez ajouter une image.";
+      fileInput.parentElement.appendChild(err);
+      hasError = true;
     }
+
+    if (!titre) {
+      const err = document.createElement("p");
+      err.classList.add("error-message-ajout-projet");
+      err.textContent = "Veuillez saisir un titre.";
+      inputTitle.after(err);
+      hasError = true;
+    }
+
+    if (!categorieId) {
+      const err = document.createElement("p");
+      err.classList.add("error-message-ajout-projet");
+      err.textContent = "Veuillez choisir une catégorie.";
+      selectCategorie.after(err);
+      hasError = true;
+    }
+
+    if (hasError) return;
 
     const formData = new FormData();
     formData.append("title", titre);
@@ -232,7 +270,6 @@ export async function afficherAjouterPhotoForm(fileInput, rafraichirProjets) {
       });
 
       if (reponse.ok) {
-        console.log("Photo ajoutée avec succès");
         cacherModale();
         await rafraichirProjets();
       } else {
@@ -242,6 +279,23 @@ export async function afficherAjouterPhotoForm(fileInput, rafraichirProjets) {
       console.error("Erreur lors de l'ajout de la photo :", error);
     }
   });
+  function checkFormValidity() {
+    const titre = inputTitle.value.trim();
+    const categorie = selectCategorie.value;
+    const imageValide =
+      fileInput.files[0] &&
+      ["image/jpeg", "image/png"].includes(fileInput.files[0].type);
+
+    if (titre && categorie && imageValide) {
+      ajoutBtn.classList.add("btn-valide");
+    } else {
+      ajoutBtn.classList.remove("btn-valide");
+    }
+  }
+
+  inputTitle.addEventListener("input", checkFormValidity);
+  selectCategorie.addEventListener("change", checkFormValidity);
+  fileInput.addEventListener("change", checkFormValidity);
 }
 
 export function cacherModale() {

@@ -1,13 +1,29 @@
 import { saveToken } from "./Auth.js";
 
-const formultaire = document.querySelector("form");
+const formulaire = document.querySelector("form");
+const emailInput = document.getElementById("email");
+const mdpInput = document.getElementById("mdp");
+const errorMessage = document.getElementById("error-message");
 
-formultaire.addEventListener("submit", async (e) => {
+function errorMessageDisplay(message) {
+  errorMessage.textContent = message;
+}
+emailInput.addEventListener("input", () => {
+  emailInput.classList.remove("login-form-false");
+  mdpInput.classList.remove("login-form-false");
+  errorMessageDisplay();
+});
+mdpInput.addEventListener("input", () => {
+  mdpInput.classList.remove("login-form-false");
+  emailInput.classList.remove("login-form-false");
+  errorMessage.textContent = "";
+});
+
+formulaire.addEventListener("submit", async (e) => {
   e.preventDefault();
 
-  const email = document.querySelector("#email").value;
-
-  const password = document.querySelector("#mdp").value;
+  const email = emailInput.value;
+  const password = mdpInput.value;
 
   const reponse = await fetch("http://localhost:5678/api/users/login", {
     method: "POST",
@@ -22,8 +38,8 @@ formultaire.addEventListener("submit", async (e) => {
     saveToken(data.token);
     window.location.href = "../index.html";
   } else {
-    document.getElementById("email").style.borderColor = "red";
-    document.getElementById("mdp").style.borderColor = "red";
-    alert("Identifiants incorrects. Veuillez réessayer.");
+    emailInput.classList.add("login-form-false");
+    mdpInput.classList.add("login-form-false");
+    errorMessageDisplay("Email ou mot de passe incorrect");
   }
 });

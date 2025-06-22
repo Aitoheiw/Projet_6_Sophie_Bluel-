@@ -241,6 +241,7 @@ nav li:hover {
   justify-content: center;
 }
 .portfolio-header-modifier {
+  cursor: pointer;
   position: absolute;
   top: 8px;
   right: calc(271px + 90px);
@@ -373,7 +374,7 @@ input[type="submit"] {
   flex-direction: column;
 }
 
-#login input[type="text"] {
+.login-input {
   width: 379px;
   height: 50px;
   font-size: 1.2em;
@@ -421,6 +422,7 @@ input[type="submit"] {
   height: 36px;
 }
 .login-form {
+  position: relative;
   display: flex;
   flex-direction: column;
   align-items: center;
@@ -428,6 +430,19 @@ input[type="submit"] {
 .login-form form {
   display: flex;
   flex-direction: column;
+}
+
+.login-form-false {
+  border: 2px solid red;
+  border-radius: 5px;
+  outline: none;
+}
+
+#error-message {
+  color: red;
+  position: absolute;
+  bottom: 86px;
+  left: calc(50% - 112px);
 }
 
 #mdp-oublie a,
@@ -625,6 +640,19 @@ footer nav ul {
   font-family: "Work Sans";
   font-size: 14px;
 }
+
+.error-message-ajout-projet {
+  color: red;
+  font-size: 0.8rem;
+  margin-top: 4px;
+}
+
+#ajout-btn.btn-valide {
+  background-color: rgba(29, 97, 84, 1);
+  color: white;
+  border: none;
+}
+
 #title {
   border: none;
   width: 420px;
