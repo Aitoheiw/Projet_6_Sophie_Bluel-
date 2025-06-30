@@ -106,7 +106,7 @@ async function gererSuppression(projet, rafraichirProjets) {
 }
 
 function confirmerSuppression() {
-  return confirm("Confirmer la suppression de cette image ?");
+  return confirm("Confirmer la suppression de ce projet ?");
 }
 
 /* ========================
