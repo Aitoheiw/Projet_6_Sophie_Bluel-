@@ -18,7 +18,6 @@ modaleBtn.addEventListener("click", () => {
   afficherAjouterPhotoForm(rafraichirProjetsGlobal);
 });
 
-// Variable globale pour garder le rafraichirProjets
 let rafraichirProjetsGlobal = null;
 
 /* ========================
@@ -191,10 +190,8 @@ function afficherErreur(parent, message) {
    Formulaire d'ajout complet
 ======================== */
 export async function afficherAjouterPhotoForm(rafraichirProjets) {
-  // Crée le formulaire
   const modaleForm = document.createElement("form");
 
-  // Zone upload
   const uploadBox = document.createElement("div");
   uploadBox.classList.add("upload-box");
 
@@ -215,7 +212,6 @@ export async function afficherAjouterPhotoForm(rafraichirProjets) {
 
   uploadBox.append(svgIcon, labelImage, info);
 
-  // Champs titre
   const labelTitle = document.createElement("label");
   labelTitle.setAttribute("for", "title");
   labelTitle.textContent = "Titre";
@@ -225,7 +221,6 @@ export async function afficherAjouterPhotoForm(rafraichirProjets) {
   inputTitle.name = "title";
   inputTitle.id = "title";
 
-  // Champ catégorie
   const labelCategorie = document.createElement("label");
   labelCategorie.setAttribute("for", "categorie");
   labelCategorie.textContent = "Catégorie";
@@ -233,7 +228,6 @@ export async function afficherAjouterPhotoForm(rafraichirProjets) {
 
   const selectCategorie = await creerSelectCategorie();
 
-  // Bouton valider
   const ajoutBtn = document.createElement("button");
   ajoutBtn.type = "submit";
   ajoutBtn.id = "ajout-btn";
@@ -241,7 +235,6 @@ export async function afficherAjouterPhotoForm(rafraichirProjets) {
   ajoutBtn.textContent = "Valider";
   ajoutBtn.disabled = true;
 
-  // Input fichier
   const fileInput = creerInputFichier(
     uploadBox,
     inputTitle,
@@ -250,7 +243,6 @@ export async function afficherAjouterPhotoForm(rafraichirProjets) {
   );
   uploadBox.appendChild(fileInput);
 
-  // Ecouteurs
   fileInput.addEventListener("change", () =>
     checkFormValidity(fileInput, inputTitle, selectCategorie, ajoutBtn)
   );
@@ -273,7 +265,6 @@ export async function afficherAjouterPhotoForm(rafraichirProjets) {
     )
   );
 
-  // Ajoute tout au formulaire
   modaleForm.append(
     uploadBox,
     labelTitle,
