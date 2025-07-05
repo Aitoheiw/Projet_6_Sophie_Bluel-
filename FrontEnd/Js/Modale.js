@@ -245,7 +245,6 @@ export async function afficherAjouterPhotoForm(uploadBox, rafraichirProjets) {
   ajoutBtn.textContent = "Valider";
   ajoutBtn.disabled = true;
 
-  // ✅ Création du fileInput APRES que tout soit défini
   const fileInput = creerInputFichier(
     uploadBox,
     inputTitle,
