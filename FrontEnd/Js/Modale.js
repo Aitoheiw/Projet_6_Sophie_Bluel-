@@ -10,19 +10,29 @@ const modaleContent = document.querySelector(".modale-container");
 const backModale = document.getElementById("back-modale");
 const closeModale = document.getElementById("close-modale");
 
+const modaleBtn = document.getElementById("modale-btn");
+modaleBtn.addEventListener("click", () => {
+  backModale.classList.remove("hidden");
+  modaleContent.innerHTML = "";
+  document.querySelector(".modale-btn-container").classList.add("hidden");
+  afficherAjouterPhotoForm(rafraichirProjetsGlobal);
+});
+
+// Variable globale pour garder le rafraichirProjets
+let rafraichirProjetsGlobal = null;
+
 /* ========================
    Affiche la modale principale
 ======================== */
 export function afficherModale(projetsGlobal, rafraichirProjets) {
+  rafraichirProjetsGlobal = rafraichirProjets;
   afficherOverlay();
   construireContenuModale();
-
   const galerieModale = modaleContent.querySelector(".gallery-modale");
   galerieModale.innerHTML = "";
 
   projetsGlobal.forEach((projet) => {
     const figure = document.createElement("figure");
-
     const deleteButton = creerBoutonSuppression(
       projet,
       rafraichirProjets,
@@ -39,14 +49,8 @@ export function afficherModale(projetsGlobal, rafraichirProjets) {
 
   modale.style.display = "flex";
 
-  const modaleBtn = document.getElementById("modale-btn");
-  modaleBtn.addEventListener("click", () => {
-    backModale.classList.remove("hidden");
-    const uploadBox = afficherAjouterPhoto();
-    afficherAjouterPhotoForm(uploadBox, rafraichirProjets);
-  });
+  document.querySelector(".modale-btn-container").classList.remove("hidden");
 }
-
 function afficherOverlay() {
   overlay.style.display = "block";
   overlay.classList.remove("hidden");
@@ -58,7 +62,6 @@ function construireContenuModale() {
   modaleContent.innerHTML = `
     <h2>Galerie photo</h2>
     <div class="gallery-modale"></div>
-    <button id="modale-btn" class="modale-btn"><span>Ajouter une photo</span></button>
   `;
 }
 
@@ -112,34 +115,6 @@ function confirmerSuppression() {
 /* ========================
    Affiche le formulaire d'ajout
 ======================== */
-export function afficherAjouterPhoto() {
-  modaleContent.innerHTML = "";
-
-  const uploadBox = document.createElement("div");
-  uploadBox.classList.add("upload-box");
-
-  const svgIcon = document.createElement("div");
-  svgIcon.innerHTML = `
-    <svg xmlns="http://www.w3.org/2000/svg" width="76" height="76" viewBox="0 0 76 76" fill="none">
-  <path d="M63.5517 15.8879C64.7228 15.8879 65.681 16.8461 65.681 18.0172V60.5768L65.0156 59.7118L46.9165 36.2894C46.3176 35.5042 45.3727 35.0517 44.3879 35.0517C43.4031 35.0517 42.4715 35.5042 41.8594 36.2894L30.8136 50.5824L26.7546 44.8998C26.1557 44.0614 25.1975 43.569 24.1595 43.569C23.1214 43.569 22.1632 44.0614 21.5644 44.9131L10.9178 59.8183L10.319 60.6434V60.6034V18.0172C10.319 16.8461 11.2772 15.8879 12.4483 15.8879H63.5517ZM12.4483 9.5C7.75048 9.5 3.93103 13.3195 3.93103 18.0172V60.6034C3.93103 65.3012 7.75048 69.1207 12.4483 69.1207H63.5517C68.2495 69.1207 72.069 65.3012 72.069 60.6034V18.0172C72.069 13.3195 68.2495 9.5 63.5517 9.5H12.4483ZM23.0948 35.0517C23.9337 35.0517 24.7644 34.8865 25.5394 34.5655C26.3144 34.2444 27.0186 33.7739 27.6118 33.1807C28.2049 32.5876 28.6755 31.8834 28.9965 31.1083C29.3175 30.3333 29.4828 29.5027 29.4828 28.6638C29.4828 27.8249 29.3175 26.9943 28.9965 26.2192C28.6755 25.4442 28.2049 24.74 27.6118 24.1468C27.0186 23.5537 26.3144 23.0831 25.5394 22.7621C24.7644 22.4411 23.9337 22.2759 23.0948 22.2759C22.2559 22.2759 21.4253 22.4411 20.6503 22.7621C19.8752 23.0831 19.171 23.5537 18.5779 24.1468C17.9847 24.74 17.5142 25.4442 17.1931 26.2192C16.8721 26.9943 16.7069 27.8249 16.7069 28.6638C16.7069 29.5027 16.8721 30.3333 17.1931 31.1083C17.5142 31.8834 17.9847 32.5876 18.5779 33.1807C19.171 33.7739 19.8752 34.2444 20.6503 34.5655C21.4253 34.8865 22.2559 35.0517 23.0948 35.0517Z" fill="#B9C5CC"/>
-</svg>
-  `;
-  svgIcon.classList.add("upload-icon");
-
-  const labelImage = document.createElement("label");
-  labelImage.setAttribute("for", "file-input");
-  labelImage.classList.add("upload-btn");
-  labelImage.textContent = "+ Ajouter photo";
-
-  const info = document.createElement("p");
-  info.classList.add("upload-info");
-  info.textContent = "jpg, png : 4 Mo max";
-
-  uploadBox.append(svgIcon, labelImage, info);
-  modaleContent.appendChild(uploadBox);
-
-  return uploadBox;
-}
 
 function creerInputFichier(uploadBox, inputTitle, selectCategorie, ajoutBtn) {
   const fileInput = document.createElement("input");
@@ -215,11 +190,32 @@ function afficherErreur(parent, message) {
 /* ========================
    Formulaire d'ajout complet
 ======================== */
-export async function afficherAjouterPhotoForm(uploadBox, rafraichirProjets) {
-  const modaleContent = document.querySelector(".modale-container");
+export async function afficherAjouterPhotoForm(rafraichirProjets) {
+  // Crée le formulaire
   const modaleForm = document.createElement("form");
 
-  // Création du titre
+  // Zone upload
+  const uploadBox = document.createElement("div");
+  uploadBox.classList.add("upload-box");
+
+  const svgIcon = document.createElement("div");
+  svgIcon.innerHTML = ` <svg xmlns="http://www.w3.org/2000/svg" width="76" height="76" viewBox="0 0 76 76" fill="none">
+//   <path d="M63.5517 15.8879C64.7228 15.8879 65.681 16.8461 65.681 18.0172V60.5768L65.0156 59.7118L46.9165 36.2894C46.3176 35.5042 45.3727 35.0517 44.3879 35.0517C43.4031 35.0517 42.4715 35.5042 41.8594 36.2894L30.8136 50.5824L26.7546 44.8998C26.1557 44.0614 25.1975 43.569 24.1595 43.569C23.1214 43.569 22.1632 44.0614 21.5644 44.9131L10.9178 59.8183L10.319 60.6434V60.6034V18.0172C10.319 16.8461 11.2772 15.8879 12.4483 15.8879H63.5517ZM12.4483 9.5C7.75048 9.5 3.93103 13.3195 3.93103 18.0172V60.6034C3.93103 65.3012 7.75048 69.1207 12.4483 69.1207H63.5517C68.2495 69.1207 72.069 65.3012 72.069 60.6034V18.0172C72.069 13.3195 68.2495 9.5 63.5517 9.5H12.4483ZM23.0948 35.0517C23.9337 35.0517 24.7644 34.8865 25.5394 34.5655C26.3144 34.2444 27.0186 33.7739 27.6118 33.1807C28.2049 32.5876 28.6755 31.8834 28.9965 31.1083C29.3175 30.3333 29.4828 29.5027 29.4828 28.6638C29.4828 27.8249 29.3175 26.9943 28.9965 26.2192C28.6755 25.4442 28.2049 24.74 27.6118 24.1468C27.0186 23.5537 26.3144 23.0831 25.5394 22.7621C24.7644 22.4411 23.9337 22.2759 23.0948 22.2759C22.2559 22.2759 21.4253 22.4411 20.6503 22.7621C19.8752 23.0831 19.171 23.5537 18.5779 24.1468C17.9847 24.74 17.5142 25.4442 17.1931 26.2192C16.8721 26.9943 16.7069 27.8249 16.7069 28.6638C16.7069 29.5027 16.8721 30.3333 17.1931 31.1083C17.5142 31.8834 17.9847 32.5876 18.5779 33.1807C19.171 33.7739 19.8752 34.2444 20.6503 34.5655C21.4253 34.8865 22.2559 35.0517 23.0948 35.0517Z" fill="#B9C5CC"/>
+// </svg>`;
+  svgIcon.classList.add("upload-icon");
+
+  const labelImage = document.createElement("label");
+  labelImage.setAttribute("for", "file-input");
+  labelImage.classList.add("upload-btn");
+  labelImage.textContent = "+ Ajouter photo";
+
+  const info = document.createElement("p");
+  info.classList.add("upload-info");
+  info.textContent = "jpg, png : 4 Mo max";
+
+  uploadBox.append(svgIcon, labelImage, info);
+
+  // Champs titre
   const labelTitle = document.createElement("label");
   labelTitle.setAttribute("for", "title");
   labelTitle.textContent = "Titre";
@@ -229,7 +225,7 @@ export async function afficherAjouterPhotoForm(uploadBox, rafraichirProjets) {
   inputTitle.name = "title";
   inputTitle.id = "title";
 
-  // Création des catégories
+  // Champ catégorie
   const labelCategorie = document.createElement("label");
   labelCategorie.setAttribute("for", "categorie");
   labelCategorie.textContent = "Catégorie";
@@ -237,7 +233,7 @@ export async function afficherAjouterPhotoForm(uploadBox, rafraichirProjets) {
 
   const selectCategorie = await creerSelectCategorie();
 
-  // Création du bouton
+  // Bouton valider
   const ajoutBtn = document.createElement("button");
   ajoutBtn.type = "submit";
   ajoutBtn.id = "ajout-btn";
@@ -245,16 +241,16 @@ export async function afficherAjouterPhotoForm(uploadBox, rafraichirProjets) {
   ajoutBtn.textContent = "Valider";
   ajoutBtn.disabled = true;
 
+  // Input fichier
   const fileInput = creerInputFichier(
     uploadBox,
     inputTitle,
     selectCategorie,
     ajoutBtn
   );
-
   uploadBox.appendChild(fileInput);
 
-  // Ajout des écouteurs
+  // Ecouteurs
   fileInput.addEventListener("change", () =>
     checkFormValidity(fileInput, inputTitle, selectCategorie, ajoutBtn)
   );
@@ -277,13 +273,16 @@ export async function afficherAjouterPhotoForm(uploadBox, rafraichirProjets) {
     )
   );
 
+  // Ajoute tout au formulaire
   modaleForm.append(
+    uploadBox,
     labelTitle,
     inputTitle,
     labelCategorie,
     selectCategorie,
     ajoutBtn
   );
+
   modaleContent.appendChild(modaleForm);
 }
 function checkFormValidity(fileInput, inputTitle, selectCategorie, ajoutBtn) {
