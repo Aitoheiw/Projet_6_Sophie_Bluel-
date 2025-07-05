@@ -42,8 +42,8 @@ export function afficherModale(projetsGlobal, rafraichirProjets) {
   const modaleBtn = document.getElementById("modale-btn");
   modaleBtn.addEventListener("click", () => {
     backModale.classList.remove("hidden");
-    const fileInput = afficherAjouterPhoto();
-    afficherAjouterPhotoForm(fileInput, rafraichirProjets);
+    const uploadBox = afficherAjouterPhoto();
+    afficherAjouterPhotoForm(uploadBox, rafraichirProjets);
   });
 }
 
@@ -126,7 +126,6 @@ export function afficherAjouterPhoto() {
   `;
   svgIcon.classList.add("upload-icon");
 
-  const fileInput = creerInputFichier(uploadBox);
   const labelImage = document.createElement("label");
   labelImage.setAttribute("for", "file-input");
   labelImage.classList.add("upload-btn");
@@ -136,13 +135,13 @@ export function afficherAjouterPhoto() {
   info.classList.add("upload-info");
   info.textContent = "jpg, png : 4 Mo max";
 
-  uploadBox.append(svgIcon, labelImage, fileInput, info);
+  uploadBox.append(svgIcon, labelImage, info);
   modaleContent.appendChild(uploadBox);
 
-  return fileInput;
+  return uploadBox;
 }
 
-function creerInputFichier(uploadBox) {
+function creerInputFichier(uploadBox, inputTitle, selectCategorie, ajoutBtn) {
   const fileInput = document.createElement("input");
   fileInput.type = "file";
   fileInput.id = "file-input";
@@ -150,13 +149,25 @@ function creerInputFichier(uploadBox) {
   fileInput.hidden = true;
 
   fileInput.addEventListener("change", () =>
-    gererChangementFichier(fileInput, uploadBox)
+    gererChangementFichier(
+      fileInput,
+      uploadBox,
+      inputTitle,
+      selectCategorie,
+      ajoutBtn
+    )
   );
 
   return fileInput;
 }
 
-function gererChangementFichier(fileInput, uploadBox) {
+function gererChangementFichier(
+  fileInput,
+  uploadBox,
+  inputTitle,
+  selectCategorie,
+  ajoutBtn
+) {
   uploadBox
     .querySelectorAll(".error-message-ajout-projet")
     .forEach((el) => el.remove());
@@ -172,13 +183,13 @@ function gererChangementFichier(fileInput, uploadBox) {
         "Seuls les fichiers JPG ou PNG sont autorisés."
       );
       fileInput.value = "";
-      checkFormValidity();
+      checkFormValidity(fileInput, inputTitle, selectCategorie, ajoutBtn);
       return;
     }
     if (!tailleOK) {
       afficherErreur(uploadBox, "La taille maximale est de 4 Mo.");
       fileInput.value = "";
-      checkFormValidity();
+      checkFormValidity(fileInput, inputTitle, selectCategorie, ajoutBtn);
       return;
     }
 
@@ -192,7 +203,7 @@ function gererChangementFichier(fileInput, uploadBox) {
     };
     reader.readAsDataURL(fichier);
   }
-  checkFormValidity();
+  checkFormValidity(fileInput, inputTitle, selectCategorie, ajoutBtn);
 }
 
 function afficherErreur(parent, message) {
@@ -204,10 +215,11 @@ function afficherErreur(parent, message) {
 /* ========================
    Formulaire d'ajout complet
 ======================== */
-export async function afficherAjouterPhotoForm(fileInput, rafraichirProjets) {
+export async function afficherAjouterPhotoForm(uploadBox, rafraichirProjets) {
   const modaleContent = document.querySelector(".modale-container");
   const modaleForm = document.createElement("form");
 
+  // Création du titre
   const labelTitle = document.createElement("label");
   labelTitle.setAttribute("for", "title");
   labelTitle.textContent = "Titre";
@@ -217,6 +229,7 @@ export async function afficherAjouterPhotoForm(fileInput, rafraichirProjets) {
   inputTitle.name = "title";
   inputTitle.id = "title";
 
+  // Création des catégories
   const labelCategorie = document.createElement("label");
   labelCategorie.setAttribute("for", "categorie");
   labelCategorie.textContent = "Catégorie";
@@ -224,33 +237,34 @@ export async function afficherAjouterPhotoForm(fileInput, rafraichirProjets) {
 
   const selectCategorie = await creerSelectCategorie();
 
+  // Création du bouton
   const ajoutBtn = document.createElement("button");
   ajoutBtn.type = "submit";
   ajoutBtn.id = "ajout-btn";
   ajoutBtn.classList.add("modale-btn");
   ajoutBtn.textContent = "Valider";
-  ajoutBtn.disabled = true; // Désactivé par défaut
+  ajoutBtn.disabled = true;
 
-  function checkFormValidity() {
-    const titre = inputTitle.value.trim();
-    const cat = selectCategorie.value;
-    const imgOK =
-      fileInput.files[0] &&
-      ["image/jpeg", "image/png"].includes(fileInput.files[0].type) &&
-      fileInput.files[0].size <= 4 * 1024 * 1024;
+  // ✅ Création du fileInput APRES que tout soit défini
+  const fileInput = creerInputFichier(
+    uploadBox,
+    inputTitle,
+    selectCategorie,
+    ajoutBtn
+  );
 
-    if (titre && cat && imgOK) {
-      ajoutBtn.disabled = false;
-      ajoutBtn.classList.add("btn-valide");
-    } else {
-      ajoutBtn.disabled = true;
-      ajoutBtn.classList.remove("btn-valide");
-    }
-  }
+  uploadBox.appendChild(fileInput);
 
-  inputTitle.addEventListener("input", checkFormValidity);
-  selectCategorie.addEventListener("change", checkFormValidity);
-  fileInput.addEventListener("change", checkFormValidity);
+  // Ajout des écouteurs
+  fileInput.addEventListener("change", () =>
+    checkFormValidity(fileInput, inputTitle, selectCategorie, ajoutBtn)
+  );
+  inputTitle.addEventListener("input", () =>
+    checkFormValidity(fileInput, inputTitle, selectCategorie, ajoutBtn)
+  );
+  selectCategorie.addEventListener("change", () =>
+    checkFormValidity(fileInput, inputTitle, selectCategorie, ajoutBtn)
+  );
 
   ajoutBtn.addEventListener("click", async (e) =>
     gererValidationAjout(
@@ -272,6 +286,22 @@ export async function afficherAjouterPhotoForm(fileInput, rafraichirProjets) {
     ajoutBtn
   );
   modaleContent.appendChild(modaleForm);
+}
+function checkFormValidity(fileInput, inputTitle, selectCategorie, ajoutBtn) {
+  const titre = inputTitle.value.trim();
+  const cat = selectCategorie.value;
+  const imgOK =
+    fileInput.files[0] &&
+    ["image/jpeg", "image/png"].includes(fileInput.files[0].type) &&
+    fileInput.files[0].size <= 4 * 1024 * 1024;
+
+  if (titre && cat && imgOK) {
+    ajoutBtn.disabled = false;
+    ajoutBtn.classList.add("btn-valide");
+  } else {
+    ajoutBtn.disabled = true;
+    ajoutBtn.classList.remove("btn-valide");
+  }
 }
 
 async function creerSelectCategorie() {
@@ -343,7 +373,7 @@ async function gererValidationAjout(
 
   try {
     const response = await createWork(formData, getToken());
-    if (reponse.ok) {
+    if (response.ok) {
       cacherModale();
       await rafraichirProjets();
     } else {
